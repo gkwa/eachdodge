@@ -5,6 +5,8 @@ Purpose:
 
 ## example usage
 
+Only works on linux
+
 ```bash
 
 root@ip-172-31-29-172:~/eachdodge# out=$(mktemp /tmp/eachdodge-XXXX.json)
