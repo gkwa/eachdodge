@@ -51,12 +51,12 @@ brews:
     owner: gkwa
     name: homebrew-tools
     branch: main
-scoops:
-- name: eachdodge
-  homepage: https://github.com/gkwa/eachdodge
-  description: "Description of the eachdodge project"
-  license: MIT
-  repository:
-    owner: gkwa
-    name: scoop-bucket
-    branch: master
+# scoops:
+# - name: eachdodge
+#   homepage: https://github.com/gkwa/eachdodge
+#   description: "Description of the eachdodge project"
+#   license: MIT
+#   repository:
+#     owner: gkwa
+#     name: scoop-bucket
+#     branch: master
