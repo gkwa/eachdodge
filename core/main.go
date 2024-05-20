@@ -1,4 +1,4 @@
-package ips2
+package core
 
 import (
 	"encoding/json"
@@ -23,14 +23,38 @@ type IPAddress struct {
 	IsInterface bool   `json:"isInterface"`
 }
 
+func Run(outfile string, out string) {
+	ipList := IPs2()
 
-func IPs2(outfile string) {
+	if out == "list" {
+		for _, ip := range ipList {
+			fmt.Println(ip.IP)
+		}
+	} else {
+		data, err := json.MarshalIndent(ipList, "", "  ")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println(string(data))
+
+		if outfile != "" {
+			err = os.WriteFile(outfile, data, 0o644)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+}
+
+func IPs2() []IPAddress {
 	links, err := netlink.LinkList()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	var ipList []IPAddress
+
 	for _, link := range links {
 		addrs, err := netlink.AddrList(link, FAMILY_ALL)
 		if err != nil {
@@ -44,7 +68,6 @@ func IPs2(outfile string) {
 			if ip.To4() == nil {
 				ipVersion = "IPv6"
 			}
-
 			ipList = append(ipList, IPAddress{
 				Interface:   link.Attrs().Name,
 				IP:          ip.String(),
@@ -66,15 +89,7 @@ func IPs2(outfile string) {
 		})
 	}
 
-	data, err := json.MarshalIndent(ipList, "", "  ")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = os.WriteFile(outfile, data, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
+	return ipList
 }
 
 func isPublicIP(ip string) bool {
@@ -101,6 +116,7 @@ func getPublicIP() (string, error) {
 	var result struct {
 		IP string `json:"ip"`
 	}
+
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		return "", err
