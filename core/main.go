@@ -28,33 +28,47 @@ func Run(outfile string, out string) {
 	ipList := IPs2()
 
 	if out == "list" {
-		sort.Slice(ipList, func(i, j int) bool {
-			return ipList[i].Interface < ipList[j].Interface
-		})
-		
-		maxInterfaceLen := 0
-		for _, ip := range ipList {
-			if len(ip.Interface) > maxInterfaceLen {
-				maxInterfaceLen = len(ip.Interface)
-			}
-		}
-
-		for _, ip := range ipList {
-			fmt.Printf("%-*s %s\n", maxInterfaceLen, ip.Interface, ip.IP)
-		}
+		printIPList(ipList)
 	} else {
-		data, err := json.MarshalIndent(ipList, "", "  ")
+		saveIPListAsJSON(ipList, outfile)
+	}
+}
+
+func printIPList(ipList []IPAddress) {
+	sort.Slice(ipList, func(i, j int) bool {
+		return ipList[i].Interface < ipList[j].Interface
+	})
+
+	// align interface names
+	maxInterfaceLen := getMaxInterfaceLength(ipList)
+
+	for _, ip := range ipList {
+		fmt.Printf("%-*s %s\n", maxInterfaceLen, ip.Interface, ip.IP)
+	}
+}
+
+func getMaxInterfaceLength(ipList []IPAddress) int {
+	maxInterfaceLen := 0
+	for _, ip := range ipList {
+		if len(ip.Interface) > maxInterfaceLen {
+			maxInterfaceLen = len(ip.Interface)
+		}
+	}
+	return maxInterfaceLen
+}
+
+func saveIPListAsJSON(ipList []IPAddress, outfile string) {
+	data, err := json.MarshalIndent(ipList, "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(string(data))
+
+	if outfile != "" {
+		err = os.WriteFile(outfile, data, 0o644)
 		if err != nil {
 			log.Fatal(err)
-		}
-
-		fmt.Println(string(data))
-
-		if outfile != "" {
-			err = os.WriteFile(outfile, data, 0o644)
-			if err != nil {
-				log.Fatal(err)
-			}
 		}
 	}
 }
