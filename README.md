@@ -9,6 +9,13 @@ Only works on linux
 
 ```bash
 
+
+ip -4 addr
+eachdodge --out=json | jq --raw-output '.[] | select(.ipVersion == "IPv4") | .ip'
+
+
+
+
 root@ip-172-31-29-172:~/eachdodge# out=$(mktemp /tmp/eachdodge-XXXX.json)
 root@ip-172-31-29-172:~/eachdodge# eachdodge ips2 --outfile=$out
 root@ip-172-31-29-172:~/eachdodge# jq -r '.[] | select(.ipVersion == "IPv4" and .interface != "lo" and .isInterface == true) | .ip' $out | jq -R . | jq -s 'join(",")' | tr -d '"'

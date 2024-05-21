@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"sort"
 
 	"github.com/vishvananda/netlink"
 )
@@ -27,8 +28,19 @@ func Run(outfile string, out string) {
 	ipList := IPs2()
 
 	if out == "list" {
+		sort.Slice(ipList, func(i, j int) bool {
+			return ipList[i].Interface < ipList[j].Interface
+		})
+		
+		maxInterfaceLen := 0
 		for _, ip := range ipList {
-			fmt.Println(ip.IP)
+			if len(ip.Interface) > maxInterfaceLen {
+				maxInterfaceLen = len(ip.Interface)
+			}
+		}
+
+		for _, ip := range ipList {
+			fmt.Printf("%-*s %s\n", maxInterfaceLen, ip.Interface, ip.IP)
 		}
 	} else {
 		data, err := json.MarshalIndent(ipList, "", "  ")
